@@ -1,0 +1,73 @@
+# k8s/dashboard.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  
+  name: dashboard-deployment
+  
+spec:
+  
+  replicas: 1
+  
+  selector:
+    
+    matchLabels:
+      
+      app: dashboard
+      
+  template:
+    
+    metadata:
+      
+      labels:
+        
+        app: dashboard
+        
+    spec:
+      
+      containers:
+        
+      - name: dashboard-container
+        
+        image: {{ .Values.dashboard.image }}:{{ .Values.dashboard.tag }}
+        
+        imagePullPolicy: Never
+        
+        env:
+          
+        - name: DB_HOST
+          
+          value: "mysql-service"
+          
+        # Konfiguracja portu MySQL
+          
+        - name: MYSQL_DB_PORT
+          
+          value: "{{ .Values.database.port }}"
+          
+        ports:
+          
+        - containerPort: 8501
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  
+  name: dashboard-service
+  
+spec:
+  
+  type: LoadBalancer
+  
+  ports:
+    
+  - port: 8501
+    
+    targetPort: 8501
+    
+  selector:
+    
+    app: dashboard

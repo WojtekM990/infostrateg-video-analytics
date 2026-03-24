@@ -1,0 +1,79 @@
+# k8s/worker.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  
+  name: ml-worker-deployment
+  
+spec:
+  
+  replicas: 1
+  
+  selector:
+    
+    matchLabels:
+      
+      app: ml-worker
+      
+  template:
+    
+    metadata:
+      
+      labels:
+        
+        app: ml-worker
+        
+    spec:
+      
+      # --- NOWY KOD: TWORZENIE MOSTU DLA PLIKOW (VOLUME) ---
+      volumes:
+      - name: video-output
+        hostPath:
+          path: /Users/wojciechmatysek/Desktop/Files/Projects/ml-local-env/video-output/
+          type: DirectoryOrCreate
+          
+      - name: input-storage
+        hostPath:
+          path: /Users/wojciechmatysek/Desktop/Files/Projects/ml-local-env/video-input/
+          type: DirectoryOrCreate
+          
+      - name: archive-storage
+        hostPath:
+          path: /Users/wojciechmatysek/Desktop/Files/Projects/ml-local-env/video-archive/
+          type: DirectoryOrCreate
+      # -----------------------------------------------------
+
+      containers:
+        
+      - name: worker-container
+        
+        image: {{ .Values.worker.image }}:{{ .Values.worker.tag }}  # <-- Dynamicznie dzięki Helmowi
+        
+        imagePullPolicy: Never
+        
+        # --- NOWY KOD: PODPIECIE MOSTU DO KONTENERA ---
+        volumeMounts:
+        - name: video-output
+          mountPath: /app/video-output
+          
+        - name: input-storage
+          mountPath: /app/video-input
+          
+        - name: archive-storage
+          mountPath: /app/video-archive
+        # ----------------------------------------------
+        
+        resources:
+          
+          requests:
+            
+            memory: "1Gi"
+            
+            cpu: "500m"
+          
+          limits:
+            
+            memory: "2Gi"
+            
+            cpu: "1000m"

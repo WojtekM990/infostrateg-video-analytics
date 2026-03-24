@@ -1,0 +1,6 @@
+apiVersion: v2
+name: infostrateg-video-analytics
+description: System do analizy wideo z wykorzystaniem AI (YOLO), RabbitMQ i Streamlit
+type: application
+version: 1.0.0
+appVersion: "1.0.0"

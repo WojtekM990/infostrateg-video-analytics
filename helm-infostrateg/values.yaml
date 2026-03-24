@@ -1,0 +1,17 @@
+# helm-infostrateg/values.yaml
+
+worker:
+  image: ml-worker
+  tag: "v4"
+  replicas: 1
+
+api:
+  image: video-api
+  tag: "v5"
+
+dashboard:
+  image: ml-dashboard
+  tag: "v2"
+
+database:
+  port: 3306
