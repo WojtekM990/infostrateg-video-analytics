@@ -1,27 +1,27 @@
-name:Video-Analytics-CI
+name: Video-Analytics-CI
 on:
   push:
     branches:
       - main
 jobs:
   build-push-update:
-    runs-on:ubuntu-latest
+    runs-on: ubuntu-latest
     permissions:
-      contents:write
-      packages:write
+      contents: write
+      packages: write
     steps:
-      - uses:actions/checkout@v4
-      - uses:docker/login-action@v3
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
         with:
-          registry:ghcr.io
-          username:${{github.actor}}
-          password:${{secrets.GITHUB_TOKEN}}
-      - uses:docker/build-push-action@v5
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v5
         with:
-          context:./
-          push:true
-          tags:ghcr.io/${{github.repository_owner}}/video-api:${{github.sha}}
-      - run:|
+          context: ./
+          push: true
+          tags: ghcr.io/${{ github.repository_owner }}/video-api:${{ github.sha }}
+      - run: |
           sed -i '/api:/!b;n;s/tag: .*/tag: "${{github.sha}}"/' helm-infostrateg/values.yaml
           git config user.name "GitHub Actions Robot"
           git config user.email "actions@github.com"
