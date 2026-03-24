@@ -2,16 +2,16 @@
 
 worker:
   image: ml-worker
-  tag: "v4"
+  tag: "v1"
   replicas: 1
 
 api:
   image: video-api
-  tag: "v5"
+  tag: "v4"
 
 dashboard:
   image: ml-dashboard
-  tag: "v2"
+  tag: "v1"
 
 database:
   port: 3306
