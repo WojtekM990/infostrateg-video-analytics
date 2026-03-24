@@ -31,9 +31,7 @@ spec:
       - name: dashboard-container
         
         image: {{ .Values.dashboard.image }}:{{ .Values.dashboard.tag }}
-        
-        imagePullPolicy: Never
-        
+                
         env:
           
         - name: DB_HOST

@@ -33,9 +33,7 @@ spec:
       - name: api-container
         
         image: {{ .Values.api.image }}:{{ .Values.api.tag }}
-        
-        imagePullPolicy: Never
-        
+                
         env:
           
         # Zmienne laczace API z baza

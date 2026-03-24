@@ -49,9 +49,7 @@ spec:
       - name: worker-container
         
         image: {{ .Values.worker.image }}:{{ .Values.worker.tag }}  # <-- Dynamicznie dzięki Helmowi
-        
-        imagePullPolicy: Never
-        
+                
         # --- NOWY KOD: PODPIECIE MOSTU DO KONTENERA ---
         volumeMounts:
         - name: video-output
