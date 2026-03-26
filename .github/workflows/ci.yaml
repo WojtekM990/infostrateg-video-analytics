@@ -20,7 +20,7 @@ jobs:
         with:
           context: ./
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/video-api:${{ github.sha }}
+          tags: ghcr.io/wojtekm990/video-api:${{ github.sha }}
       - run: |
           sed -i '/api:/!b;n;s/tag: .*/tag: "${{github.sha}}"/' helm-infostrateg/values.yaml
           git config user.name "GitHub Actions Robot"
