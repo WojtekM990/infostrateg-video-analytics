@@ -12,10 +12,22 @@ import os
 import glob
 import shutil
 import statistics
+import mysql.connector
+import hashlib
 
 API_URL = "http://video-api-service/simulate_detection"
 CAMERAS = ["KAM-01"]
 FRAME_INTERVAL = 5  # <-- Zmieniajac te cyfre, zmieniasz czestotliwosc analizy w calym skrypcie!
+
+def get_file_hash(filepath):
+    """Funkcja generujaca unikalny odcisk palca (MD5) dla pliku wideo."""
+    hasher = hashlib.md5()
+    with open(filepath, 'rb') as afile:
+        buf = afile.read(65536) # Czytamy w paczkach po 64KB, by oszczedzac RAM
+        while len(buf) > 0:
+            hasher.update(buf)
+            buf = afile.read(65536)
+    return hasher.hexdigest()
 
 def send_to_rabbitmq(payload):
     try:
@@ -36,7 +48,27 @@ def send_to_rabbitmq(payload):
 
 def process_video_stream(video_path, output_mp4_name):
     
-    print(f"Inicjalizacja AI dla pliku: {video_path}...")
+    print(f"Inicjalizacja AI dla pliku: {video_path} (Hash ID: {output_mp4_name})...")
+    
+    # --- NOWY KOD: CZYSZCZENIE BAZY DANYCH PRZED ANALIZA ---
+    try:
+        db_port = os.environ.get('MYSQL_DB_PORT', '3306')
+        conn = mysql.connector.connect(
+            host="mysql-service", 
+            user="user", 
+            password="password", 
+            port=int(db_port),
+            database="behavior_db" 
+        )
+        cursor = conn.cursor()
+        # Usuwamy wszystkie wczesniejsze logi dla tego konkretnego filmu
+        cursor.execute("DELETE FROM detections WHERE video_id = %s", (output_mp4_name,))
+        conn.commit()
+        conn.close()
+        print(f"Wyczyszczono z bazy stare dane dla wideo o ID: {output_mp4_name}")
+    except Exception as e:
+        print(f"Ostrzezenie bazy (czy dodales mysql-connector-python do requirements.txt?): {e}")
+    # --------------------------------------------------------
     
     model = YOLO("yolov8n.pt")
     cap = cv2.VideoCapture(video_path)
@@ -177,6 +209,7 @@ def process_video_stream(video_path, output_mp4_name):
                     
                     try:
                         send_to_rabbitmq({
+                            "video_id": output_mp4_name,
                             "camera_id": CAMERAS[0], 
                             "person_id": p['id'], 
                             "behavior": role.lower(), 
@@ -194,6 +227,7 @@ def process_video_stream(video_path, output_mp4_name):
             
             # Ogolny status kamery
             payload = {
+                "video_id": output_mp4_name,
                 "camera_id": CAMERAS[0],
                 "person_id": None,
                 "behavior": f"wykryto_{people_count}_osob",
@@ -241,8 +275,10 @@ def watch_folder_and_process():
             
         current_video = video_files[0]
         video_name = os.path.basename(current_video)
-        video_core_name = os.path.splitext(video_name)[0]
-        print(f"\n--- ZNALEZIONO NOWY FILM: {video_name} ---")
+        
+        # --- ZMIANA NA ODCISK PALCA ---
+        video_core_name = get_file_hash(current_video)
+        print(f"\n--- ZNALEZIONO NOWY FILM: {video_name} (Zaszyfrowane ID: {video_core_name}) ---")
         
         process_video_stream(current_video, video_core_name)
         
