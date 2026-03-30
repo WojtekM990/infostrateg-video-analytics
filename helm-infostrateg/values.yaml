@@ -1,12 +1,12 @@
 # helm-infostrateg/values.yaml
 
 worker:
-  tag: "v1" # To robot sam podmieni na długi kod (SHA)
+  tag: "0e8f5645c469b400678166d417631d5a703e25e2"
   image: ghcr.io/wojtekm990/ml-worker
   replicas: 1
 
 api:
-  tag: "2aa4613e98cc24797de63b916742920e555f3b28"
+  tag: "0e8f5645c469b400678166d417631d5a703e25e2"
   image: ghcr.io/wojtekm990/video-api
 
 dashboard:
