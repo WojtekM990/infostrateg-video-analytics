@@ -3,7 +3,7 @@
 import cv2
 import time
 import requests
-import pika
+from confluent_kafka import Producer
 import json
 from ultralytics import YOLO
 import math
@@ -29,20 +29,12 @@ def get_file_hash(filepath):
             buf = afile.read(65536)
     return hasher.hexdigest()
 
-def send_to_rabbitmq(payload):
+def send_to_kafka(payload):
     try:
-        credentials = pika.PlainCredentials('admin', 'admin123')
-        parameters = pika.ConnectionParameters('rabbitmq-service', 5672, '/', credentials)
-        connection = pika.BlockingConnection(parameters)
-        channel = connection.channel()
-        channel.queue_declare(queue='detections_queue', durable=True)
-        channel.basic_publish(
-            exchange='',
-            routing_key='detections_queue',
-            body=json.dumps(payload),
-            properties=pika.BasicProperties(delivery_mode=2)
-        )
-        connection.close()
+        conf = {'bootstrap.servers': 'kafka-service:9092'}
+        producer = Producer(conf)
+        producer.produce('detections_topic', value=json.dumps(payload).encode('utf-8'))
+        producer.flush()
     except Exception as e:
         pass # Ignorujemy drobne bledy sieci, zeby nie zasmiecac terminala
 
@@ -208,7 +200,7 @@ def process_video_stream(video_path, output_mp4_name):
                     # print(f"[{now}] [Klatka {frame_count}] Osoba ID:{p['id']} -> Rola: {role} (Predkosc: {p['speed']:.1f}, Bagaz: {p['carrying']})")
                     
                     try:
-                        send_to_rabbitmq({
+                        send_to_kafka({
                             "video_id": output_mp4_name,
                             "camera_id": CAMERAS[0], 
                             "person_id": p['id'], 
@@ -238,7 +230,7 @@ def process_video_stream(video_path, output_mp4_name):
             }
             
             try:
-                send_to_rabbitmq(payload)
+                send_to_kafka(payload)
             except Exception as e:
                 print(f"Blad komunikacji z kolejka: {e}")
             

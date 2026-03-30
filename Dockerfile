@@ -8,7 +8,7 @@ RUN pip install --no-cache-dir \
     uvicorn \
     pymysql \
     cryptography \
-    pika==1.3.2
+    confluent-kafka
 
 # Kopiujemy zawartosc folderu app do Workdir
 COPY app/ .

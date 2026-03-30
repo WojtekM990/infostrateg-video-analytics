@@ -30,7 +30,7 @@ RUN pip install --no-cache-dir \
     lapx \
     pymysql \
     cryptography \
-    pika==1.3.2
+    confluent-kafka
 
 # KROK KLUCZOWY: Pobieramy model YOLOv8n do obrazu TERAZ.
 # Dzieki temu kontener nie bedzie go sciagal z internetu podczas startu w Kubernetes.
