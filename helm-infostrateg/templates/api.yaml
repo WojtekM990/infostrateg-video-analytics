@@ -54,7 +54,7 @@ spec:
           
         - name: MYSQL_DB_PORT
           
-          value: "{{ .Values.database.port }}"
+          value: "{{ .Values.database.MYSQL_DB_PORT }}"
           
         ports:
           
