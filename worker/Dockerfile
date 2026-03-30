@@ -2,43 +2,39 @@
 
 FROM python:3.9-slim
 
-RUN apt-get update && apt-get install -y ffmpeg libsm6 libxext6
-
 WORKDIR /app
 
-# BARDZO WAZNE: Instalujemy narzedzia systemowe Linuxa wymagane przez OpenCV i YOLO
-# Dodajemy build-essential i ffmpeg dla stabilnego dekodowania wideo
+# 1. Łączymy instalacje systemowe w jedną warstwę i czyścimy cache instalatora
+# Dzieki temu obraz jest mniejszy o kilkaset MB
 RUN apt-get update && apt-get install -y \
     libgl1 \
     libglib2.0-0 \
     build-essential \
     ffmpeg \
+    libsm6 \
+    libxext6 \
     && rm -rf /var/lib/apt/lists/*
 
-# Instalujemy aktualizacje narzedzi budowania
+# 2. Instalujemy narzedzia budowania (rzadko sie zmieniaja)
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel
 
-# BLOKADA NUMPY: Wymuszamy wersje < 2 przed instalacja reszty
+# 3. BLOKADA NUMPY i instalacja bibliotek AI (To jest te 7GB)
+# Robimy to PRZED kopiowaniem kodu, zeby Docker mogl to zapamietac (cache)
 RUN pip install --no-cache-dir "numpy<2"
-
-# Instalujemy biblioteki AI i bazy danych
-# Dodajemy pymysql i cryptography, by móc wysyłać dane przez MYSQL_DB_PORT
 RUN pip install --no-cache-dir \
     requests \
     opencv-python==4.8.0.76 \
     ultralytics \
     lapx \
-    pymysql \
-    cryptography \
     confluent-kafka
+# USUNIETO: pymysql i cryptography (Worker juz nie laczy sie z baza, robi to API)
 
-# KROK KLUCZOWY: Pobieramy model YOLOv8n do obrazu TERAZ.
-# Dzieki temu kontener nie bedzie go sciagal z internetu podczas startu w Kubernetes.
+# 4. KROK KLUCZOWY: Pobieramy model YOLOv8n (Rowniez zapamietane w cache)
 RUN python -c "from ultralytics import YOLO; YOLO('yolov8n.pt')"
 
-# Kopiujemy nasz kod i plik wideo
+# 5. KOPIOWANIE KODU (Na samym koncu!)
+# Teraz, gdy zmienisz tylko worker.py, Docker wykona tylko ten krok w 1 sekunde
 COPY worker.py .
-COPY sample.mp4 .
 
 ENV PYTHONUNBUFFERED=1
 
