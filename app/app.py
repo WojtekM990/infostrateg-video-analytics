@@ -1,5 +1,3 @@
-# api/main.py
-
 from fastapi import FastAPI
 import pymysql
 import os
@@ -14,7 +12,8 @@ DB_HOST = os.getenv("DB_HOST", "mysql-service")
 DB_USER = os.getenv("DB_USER", "user")
 DB_PASSWORD = os.getenv("DB_PASSWORD", "password")
 DB_NAME = os.getenv("DB_NAME", "behavior_db")
-# Pobieramy zmienna. Jeśli Kubernetes wysle pustke, uzywamy 3306
+
+# Bezpieczne pobieranie portu (zabezpieczenie przed pustym stringiem z Kubernetesa)
 port_str = os.getenv("MYSQL_DB_PORT", "3306")
 DB_PORT = int(port_str) if port_str.strip() else 3306
 
