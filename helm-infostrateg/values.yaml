@@ -6,12 +6,12 @@ worker:
   replicas: 1
 
 api:
-  image: video-api
   tag: "v4"
+  image: video-api
 
 dashboard:
   image: ml-dashboard
   tag: "v1"
 
 database:
-  port: 3306
+  MYSQL_DB_PORT: 3306
