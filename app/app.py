@@ -1,3 +1,5 @@
+# app/app.py
+
 from fastapi import FastAPI
 import pymysql
 import os
@@ -83,22 +85,33 @@ def consume_kafka():
             
             conn = get_db_connection()
             with conn.cursor() as cursor:
-                # POPRAWKA: Dodano brakujący %s, teraz jest ich 8
-                sql = "INSERT INTO detections (camera_id, video_id, person_id, behavior, speed, frame_number, frame_id, confidence) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-                cursor.execute(sql, (
-                    payload.get('camera_id'), 
-                    payload.get('video_id'),
-                    payload.get('person_id'), 
-                    payload.get('behavior'), 
-                    payload.get('speed'), 
-                    payload.get('frame_number'),
-                    payload.get('frame_id'),
-                    payload.get('confidence')
-                ))
+                
+                # --- NOWOŚĆ: LOGIKA CZYSZCZENIA BAZY PRZED STARTEM NOWEGO FILMU ---
+                if payload.get('behavior') == 'init_video_cleanup':
+                    video_id = payload.get('video_id')
+                    sql = "DELETE FROM detections WHERE video_id = %s"
+                    cursor.execute(sql, (video_id,))
+                    print(f"[Kafka Konsument] Otrzymano sygnal startu. Wyczyszczono stare dane dla wideo o ID: {video_id}")
+                else:
+                    # POPRAWKA: Dodano brakujący %s, teraz jest ich 8
+                    sql = "INSERT INTO detections (camera_id, video_id, person_id, behavior, speed, frame_number, frame_id, confidence) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+                    cursor.execute(sql, (
+                        payload.get('camera_id'), 
+                        payload.get('video_id'),
+                        payload.get('person_id'), 
+                        payload.get('behavior'), 
+                        payload.get('speed'), 
+                        payload.get('frame_number'),
+                        payload.get('frame_id'),
+                        payload.get('confidence')
+                    ))
+            
             conn.commit()
             conn.close()
             
-            print(f"[Kafka Konsument] Zapisano log: ID: {payload.get('person_id')} | Klatka: {payload.get('frame_number')} | V: {payload.get('speed')}")
+            # Print logów tylko dla detekcji (nie dla czyszczenia)
+            if payload.get('behavior') != 'init_video_cleanup':
+                print(f"[Kafka Konsument] Zapisano log: ID: {payload.get('person_id')} | Klatka: {payload.get('frame_number')} | V: {payload.get('speed')}")
             
         except Exception as e:
             print(f"[Kafka Konsument] Blad bazy MySQL: {e}")

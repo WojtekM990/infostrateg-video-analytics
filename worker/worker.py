@@ -12,7 +12,7 @@ import os
 import glob
 import shutil
 import statistics
-import mysql.connector
+# USUNIETO: import mysql.connector (powodowal blad ModuleNotFoundError)
 import hashlib
 
 API_URL = "http://video-api-service/simulate_detection"
@@ -42,24 +42,19 @@ def process_video_stream(video_path, output_mp4_name):
     
     print(f"Inicjalizacja AI dla pliku: {video_path} (Hash ID: {output_mp4_name})...")
     
-    # --- NOWY KOD: CZYSZCZENIE BAZY DANYCH PRZED ANALIZA ---
+    # --- NOWY KOD (POPRAWIONY): SYGNALIZACJA STARTU PRZEZ KAFKE ---
+    # Zamiast laczyc sie z baza, wysylamy specjalny komunikat "init", ktory odbierze API
     try:
-        db_port = os.environ.get('MYSQL_DB_PORT', '3306')
-        conn = mysql.connector.connect(
-            host="mysql-service", 
-            user="user", 
-            password="password", 
-            port=int(db_port),
-            database="behavior_db" 
-        )
-        cursor = conn.cursor()
-        # Usuwamy wszystkie wczesniejsze logi dla tego konkretnego filmu
-        cursor.execute("DELETE FROM detections WHERE video_id = %s", (output_mp4_name,))
-        conn.commit()
-        conn.close()
-        print(f"Wyczyszczono z bazy stare dane dla wideo o ID: {output_mp4_name}")
+        send_to_kafka({
+            "video_id": output_mp4_name,
+            "camera_id": CAMERAS[0],
+            "behavior": "init_video_cleanup",
+            "frame_number": 0,
+            "confidence": 1.0
+        })
+        print(f"Wyslano sygnal inicjalizacji (cleanup) dla wideo o ID: {output_mp4_name}")
     except Exception as e:
-        print(f"Ostrzezenie bazy (czy dodales mysql-connector-python do requirements.txt?): {e}")
+        print(f"Ostrzezenie: Nie udalo sie wyslac sygnalu startu: {e}")
     # --------------------------------------------------------
     
     model = YOLO("yolov8n.pt")
@@ -196,8 +191,6 @@ def process_video_stream(video_path, output_mp4_name):
                         role = "GAP_STOI"
                         
                     now = time.strftime("%H:%M:%S")
-                    # WYCISZONY PRINT DETEKCJI
-                    # print(f"[{now}] [Klatka {frame_count}] Osoba ID:{p['id']} -> Rola: {role} (Predkosc: {p['speed']:.1f}, Bagaz: {p['carrying']})")
                     
                     try:
                         send_to_kafka({
@@ -214,8 +207,6 @@ def process_video_stream(video_path, output_mp4_name):
                         pass
                         
             now = time.strftime("%H:%M:%S")
-            # WYCISZONY PRINT STATUSU
-            # print(f"[{now}] [Klatka {frame_count}] Ogolny status: Widzi {people_count} osob. Kierunek tlumu: {main_flow_angle if main_flow_angle else 'Brak'}")
             
             # Ogolny status kamery
             payload = {
@@ -239,10 +230,8 @@ def process_video_stream(video_path, output_mp4_name):
     
     # --- NOWY KOD: KONWERSJA DLA MACA / STREAMLITA ---
     print("Rozpoczynam konwersje wideo na format Apple/Web (H.264)...")
-    # Zmieniona sciezka na video-output
     koncowy_mp4 = f"/app/video-output/wynik_{output_mp4_name}.mp4"
     os.system(f"ffmpeg -y -i {roboczy_avi} -vcodec libx264 {koncowy_mp4}")
-    # Czystki - usuwamy duzy plik .avi, zeby nie zasmiecac dysku
     os.remove(roboczy_avi)
     # -------------------------------------------------
     
@@ -268,7 +257,7 @@ def watch_folder_and_process():
         current_video = video_files[0]
         video_name = os.path.basename(current_video)
         
-        # --- ZMIANA NA ODCISK PALCA ---
+        # --- ZMIANA NA ODCISC PALCA ---
         video_core_name = get_file_hash(current_video)
         print(f"\n--- ZNALEZIONO NOWY FILM: {video_name} (Zaszyfrowane ID: {video_core_name}) ---")
         
