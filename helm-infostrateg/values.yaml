@@ -6,7 +6,7 @@ worker:
   replicas: 1
 
 api:
-  tag: "6eef08c519e3d22419a9ce246e53c7307f789e04"
+  tag: "0a17f1ae1acca1012989ddfb4b0e16bd924a609f"
   image: ghcr.io/wojtekm990/video-api
 
 dashboard:
