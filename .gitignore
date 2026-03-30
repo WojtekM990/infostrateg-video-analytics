@@ -1,0 +1,12 @@
+# Ignoruj pliki systemowe Maca
+.DS_Store
+**/.DS_Store
+
+# Ignoruj foldery z plikami wideo
+video-input/
+video-output/
+video-archive/
+video-files/
+
+# Ignoruj pliki tymczasowe
+~$*.docx
