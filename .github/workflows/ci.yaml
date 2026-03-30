@@ -11,20 +11,41 @@ jobs:
       packages: write
     steps:
       - uses: actions/checkout@v4
-      - uses: docker/login-action@v3
+
+      - name: Logowanie do rejestru obrazów
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v5
+
+      # 1. Budowa obrazu API (z głównego folderu ./)
+      - name: Build & Push API
+        uses: docker/build-push-action@v5
         with:
           context: ./
           push: true
           tags: ghcr.io/wojtekm990/video-api:${{ github.sha }}
-      - run: |
+
+      # 2. Budowa obrazu WORKER (z folderu ./worker)
+      - name: Build & Push Worker
+        uses: docker/build-push-action@v5
+        with:
+          context: ./worker
+          push: true
+          tags: ghcr.io/wojtekm990/ml-worker:${{ github.sha }}
+
+      # 3. Aktualizacja tagów w pliku values.yaml i wysyłka do repo
+      - name: Update Helm Tags
+        run: |
+          # Aktualizujemy tag dla sekcji api:
           sed -i '/api:/!b;n;s/tag: .*/tag: "${{github.sha}}"/' helm-infostrateg/values.yaml
+          
+          # Aktualizujemy tag dla sekcji worker:
+          sed -i '/worker:/!b;n;s/tag: .*/tag: "${{github.sha}}"/' helm-infostrateg/values.yaml
+          
           git config user.name "GitHub Actions Robot"
           git config user.email "actions@github.com"
           git add helm-infostrateg/values.yaml
-          git commit -m "CI: Zaktualizowano obraz do wersji ${{github.sha}}"
+          git commit -m "CI: Automatyczna aktualizacja API i Workera do wersji ${{github.sha}}"
           git push

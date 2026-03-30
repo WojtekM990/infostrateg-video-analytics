@@ -1,8 +1,8 @@
 # helm-infostrateg/values.yaml
 
 worker:
-  image: ml-worker
-  tag: "v1"
+  tag: "v1" # To robot sam podmieni na długi kod (SHA)
+  image: ghcr.io/wojtekm990/ml-worker
   replicas: 1
 
 api:
