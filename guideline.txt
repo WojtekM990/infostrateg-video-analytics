@@ -1,0 +1,43 @@
+1. docker build -t image-classifier:v1 .
+Ta komenda tworzy Obraz (Image) na podstawie Twojego przepisu (Dockerfile).
+
+docker build: Wywołanie silnika Dockera, aby rozpoczął proces budowania warstw systemu plików.
+
+-t image-classifier:v1: Flaga -t (tag) nadaje nazwę i wersję Twojemu obrazowi. image-classifier to nazwa, a :v1 to tag wersji. W firmach często używa się tu numerów wersji lub identyfikatorów z Gita.
+
+. (kropka na końcu): To tzw. Build Context. Mówi Dockerowi: "Szukaj pliku Dockerfile i wszystkich plików do skopiowania w bieżącym folderze".
+
+Co się dzieje technicznie? Docker czyta Dockerfile, pobiera bazowy system (Python slim), kopiuje Twój folder app/ i "zamraża" to wszystko w jeden plik binarny, który jest gotowy do uruchomienia wszędzie.
+
+2. kubectl apply -f k8s/deployment.yaml
+Ta komenda przesyła Twoje instrukcje do Control Plane (mózgu) Kubernetesa.
+
+kubectl: Narzędzie CLI (Command Line Interface) do komunikacji z API klastra.
+
+apply: Najważniejsza komenda w K8s. Mówi: "Zastosuj ten stan". Jeśli obiekt nie istnieje – stwórz go. Jeśli istnieje, a coś zmieniłeś w YAML – zaktualizuj go.
+
+-f k8s/deployment.yaml: Flaga -f (filename) wskazuje ścieżkę do pliku z manifestem.
+
+Co się dzieje technicznie? API Server odbiera Twój YAML, zapisuje go w bazie danych klastra (etcd), a następnie Scheduler widzi, że potrzebujesz 2 Podów i szuka dla nich miejsca na Twoim MacBooku (Node).
+
+3. kubectl get pods
+To komenda do sprawdzania statusu "życia" Twoich jednostek obliczeniowych.
+
+get pods: Prosi klaster o listę wszystkich aktualnie uruchomionych Podów.
+
+Co tu zobaczysz?
+
+NAME: Wygenerowana nazwa Poda (np. ml-classifier-deployment-55f6...).
+
+READY: 1/1 oznacza, że kontener wewnątrz Poda wystartował poprawnie.
+
+STATUS: Szukamy zielonego Running. Jeśli zobaczysz ImagePullBackOff, to znaczy, że K8s nie może znaleźć Twojego obrazu Dockerowego.
+
+4. kubectl logs -l app=image-classifier
+To komenda służąca do sprawdzania, co faktycznie dzieje się wewnątrz Twojego kodu Pythona.
+
+logs: Wyciąga to, co Twój skrypt wypisał na ekran (print w Pythonie).
+
+-l app=image-classifier: Flaga -l (selector) pozwala filtrować logi po etykiecie (label). Zamiast wpisywać długą i trudną nazwę jednego Poda, mówisz: "Pokaż mi logi ze wszystkich Podów, które mają etykietę app: image-classifier".
+
+Dlaczego to ważne w ML? Podczas trenowania lub inferencji modelu, tutaj będziesz widział postęp ładowania wag (te 5 sekund czekania z Twojego skryptu) oraz ewentualne błędy (np. brak pamięci RAM przy wczytywaniu dużego modelu).
