@@ -1,16 +1,16 @@
 # helm-infostrateg/values.yaml
 
 worker:
-  tag: "0cfc1911de11e098cd55210fa246b046465ec3c0"
+  tag: "bec10bac80aec6b11cf62d70c3d631210256777e"
   image: ghcr.io/wojtekm990/ml-worker
   replicas: 1
 
 api:
-  tag: "0cfc1911de11e098cd55210fa246b046465ec3c0"
+  tag: "bec10bac80aec6b11cf62d70c3d631210256777e"
   image: ghcr.io/wojtekm990/video-api
 
 dashboard:
-  tag: "0cfc1911de11e098cd55210fa246b046465ec3c0"
+  tag: "bec10bac80aec6b11cf62d70c3d631210256777e"
   image: ghcr.io/wojtekm990/ml-dashboard
   replicas: 1
 
