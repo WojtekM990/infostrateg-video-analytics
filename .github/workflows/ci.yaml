@@ -12,6 +12,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      # Dodano emulator QEMU niezbędny do budowy obrazów dla Apple Silicon (ARM64)
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
@@ -29,6 +33,7 @@ jobs:
           context: ./
           push: true
           tags: ghcr.io/wojtekm990/video-api:${{ github.sha }}
+          platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -39,6 +44,7 @@ jobs:
           context: ./worker
           push: true
           tags: ghcr.io/wojtekm990/ml-worker:${{ github.sha }}
+          platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
@@ -49,6 +55,7 @@ jobs:
           context: ./dashboard
           push: true
           tags: ghcr.io/wojtekm990/ml-dashboard:${{ github.sha }}
+          platforms: linux/amd64,linux/arm64
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
