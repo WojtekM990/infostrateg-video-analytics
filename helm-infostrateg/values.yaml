@@ -10,8 +10,10 @@ api:
   image: ghcr.io/wojtekm990/video-api
 
 dashboard:
-  image: ml-dashboard
-  tag: "v1"
+  image: ghcr.io/wojtekm990/ml-dashboard
+  tag: "v1" # To zostanie podmienione przez roboty
+  replicas: 1
 
 database:
   MYSQL_DB_PORT: 3306
+
