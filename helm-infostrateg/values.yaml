@@ -10,8 +10,8 @@ api:
   image: ghcr.io/wojtekm990/video-api
 
 dashboard:
-  image: ghcr.io/wojtekm990/ml-dashboard
   tag: "v1" # To zostanie podmienione przez roboty
+  image: ghcr.io/wojtekm990/ml-dashboard
   replicas: 1
 
 database:
