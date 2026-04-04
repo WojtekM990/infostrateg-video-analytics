@@ -15,7 +15,8 @@ db_name = os.getenv("DB_NAME", "behavior_db")
 
 # Uzywamy wymaganej zmiennej portu!
 
-db_port = int(os.getenv("MYSQL_DB_PORT", 3306))
+port_str = str(os.getenv("MYSQL_DB_PORT", "3306"))
+db_port = int(port_str) if port_str.strip() else 3306
 
 def get_data():
     
