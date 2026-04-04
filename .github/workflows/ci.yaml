@@ -76,3 +76,4 @@ jobs:
           git add helm-infostrateg/values.yaml
           git commit -m "CI: Automatyczna aktualizacja API, Workera i Dashboardu do wersji ${{github.sha}}"
           git push
+          
