@@ -244,6 +244,8 @@ def watch_folder_and_process():
     # Zmienione nazwy folderow
     input_folder = "/app/video-input"
     archive_folder = "/app/video-archive"
+
+    print("--- TEST CI/CD: Oczekiwany szybki build! ---") # <-- DODAJ TYLKO TĘ LINIJKĘ
     
     os.makedirs(input_folder, exist_ok=True)
     os.makedirs(archive_folder, exist_ok=True)
