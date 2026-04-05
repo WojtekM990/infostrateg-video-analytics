@@ -34,8 +34,8 @@ jobs:
           push: true
           tags: ghcr.io/wojtekm990/video-api:${{ github.sha }}
           platforms: linux/amd64,linux/arm64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=ghcr.io/wojtekm990/video-api:buildcache
+          cache-to: type=registry,ref=ghcr.io/wojtekm990/video-api:buildcache,mode=max
 
       # 2. Budowa obrazu WORKER (z folderu ./worker)
       - name: Build & Push Worker
@@ -45,8 +45,8 @@ jobs:
           push: true
           tags: ghcr.io/wojtekm990/ml-worker:${{ github.sha }}
           platforms: linux/amd64,linux/arm64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=ghcr.io/wojtekm990/ml-worker:buildcache
+          cache-to: type=registry,ref=ghcr.io/wojtekm990/ml-worker:buildcache,mode=max
 
       # 3. Budowa obrazu DASHBOARD (z folderu ./dashboard)
       - name: Build & Push Dashboard
@@ -56,8 +56,8 @@ jobs:
           push: true
           tags: ghcr.io/wojtekm990/ml-dashboard:${{ github.sha }}
           platforms: linux/amd64,linux/arm64
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
+          cache-from: type=registry,ref=ghcr.io/wojtekm990/ml-dashboard:buildcache
+          cache-to: type=registry,ref=ghcr.io/wojtekm990/ml-dashboard:buildcache,mode=max
 
       # 4. Aktualizacja tagów w pliku values.yaml i wysyłka do repo
       - name: Update Helm Tags
@@ -76,4 +76,3 @@ jobs:
           git add helm-infostrateg/values.yaml
           git commit -m "CI: Automatyczna aktualizacja API, Workera i Dashboardu do wersji ${{github.sha}}"
           git push
-          
