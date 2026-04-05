@@ -40,6 +40,7 @@ def init_db():
                         id INT AUTO_INCREMENT PRIMARY KEY,
                         camera_id VARCHAR(255),
                         video_id VARCHAR(255),
+                        video_name VARCHAR(255) NULL,
                         person_id INT NULL,
                         behavior VARCHAR(255),
                         speed FLOAT NULL,
@@ -93,11 +94,12 @@ def consume_kafka():
                     cursor.execute(sql, (video_id,))
                     print(f"[Kafka Konsument] Otrzymano sygnal startu. Wyczyszczono stare dane dla wideo o ID: {video_id}")
                 else:
-                    # POPRAWKA: Dodano brakujący %s, teraz jest ich 8
-                    sql = "INSERT INTO detections (camera_id, video_id, person_id, behavior, speed, frame_number, frame_id, confidence) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+                    # POPRAWKA: Dodano brakujący %s, teraz jest ich 9
+                    sql = "INSERT INTO detections (camera_id, video_id, video_name, person_id, behavior, speed, frame_number, frame_id, confidence) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
                     cursor.execute(sql, (
                         payload.get('camera_id'), 
                         payload.get('video_id'),
+                        payload.get('video_name'),
                         payload.get('person_id'), 
                         payload.get('behavior'), 
                         payload.get('speed'), 
@@ -125,13 +127,13 @@ def startup_event():
 
 # Endpoint zostawiamy na wypadek testow bezposrednich z przegladarki
 @app.post("/simulate_detection")
-def simulate_detection(camera_id: str, video_id: str, behavior: str, person_id: int = None, speed: float = None, frame_number: int = None, frame_id: int = None, confidence: float = 0.0):
+def simulate_detection(camera_id: str, video_id: str, behavior: str, video_name: str = None, person_id: int = None, speed: float = None, frame_number: int = None, frame_id: int = None, confidence: float = 0.0):
     try:
         conn = get_db_connection()
         with conn.cursor() as cursor:
-            # POPRAWKA: Dodano brakujący %s, teraz jest ich 8
-            sql = "INSERT INTO detections (camera_id, video_id, person_id, behavior, speed, frame_number, frame_id, confidence) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
-            cursor.execute(sql, (camera_id, video_id, person_id, behavior, speed, frame_number, frame_id, confidence))
+            # POPRAWKA: Dodano brakujący %s, teraz jest ich 9
+            sql = "INSERT INTO detections (camera_id, video_id, video_name, person_id, behavior, speed, frame_number, frame_id, confidence) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            cursor.execute(sql, (camera_id, video_id, video_name, person_id, behavior, speed, frame_number, frame_id, confidence))
         conn.commit()
         conn.close()
         return {"status": "success"}

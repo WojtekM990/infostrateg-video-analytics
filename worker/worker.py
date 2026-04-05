@@ -38,7 +38,7 @@ def send_to_kafka(payload):
     except Exception as e:
         pass # Ignorujemy drobne bledy sieci, zeby nie zasmiecac terminala
 
-def process_video_stream(video_path, output_mp4_name):
+def process_video_stream(video_path, output_mp4_name, original_video_name):
     
     print(f"Inicjalizacja AI dla pliku: {video_path} (Hash ID: {output_mp4_name})...")
     
@@ -47,6 +47,7 @@ def process_video_stream(video_path, output_mp4_name):
     try:
         send_to_kafka({
             "video_id": output_mp4_name,
+            "video_name": original_video_name,
             "camera_id": CAMERAS[0],
             "behavior": "init_video_cleanup",
             "frame_number": 0,
@@ -195,6 +196,7 @@ def process_video_stream(video_path, output_mp4_name):
                     try:
                         send_to_kafka({
                             "video_id": output_mp4_name,
+                            "video_name": original_video_name,
                             "camera_id": CAMERAS[0], 
                             "person_id": p['id'], 
                             "behavior": role.lower(), 
@@ -211,6 +213,7 @@ def process_video_stream(video_path, output_mp4_name):
             # Ogolny status kamery
             payload = {
                 "video_id": output_mp4_name,
+                "video_name": original_video_name,
                 "camera_id": CAMERAS[0],
                 "person_id": None,
                 "behavior": f"wykryto_{people_count}_osob",
@@ -261,7 +264,7 @@ def watch_folder_and_process():
         video_core_name = get_file_hash(current_video)
         print(f"\n--- ZNALEZIONO NOWY FILM: {video_name} (Zaszyfrowane ID: {video_core_name}) ---")
         
-        process_video_stream(current_video, video_core_name)
+        process_video_stream(current_video, video_core_name, video_name)
         
         archive_path = os.path.join(archive_folder, video_name)
         shutil.move(current_video, archive_path)

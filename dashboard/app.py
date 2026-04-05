@@ -68,7 +68,7 @@ if not df.empty:
     with col1:
         
         st.subheader("Ostatnie Wykryte Zdarzenia")
-        st.dataframe(df[['camera_id', 'person_id', 'behavior', 'speed', 'confidence', 'detected_at']])
+        st.dataframe(df[['camera_id', 'video_name', 'person_id', 'behavior', 'speed', 'confidence', 'detected_at']])
         
     with col2:
         
