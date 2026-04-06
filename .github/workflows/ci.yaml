@@ -70,9 +70,22 @@ jobs:
 
           # Aktualizujemy tag dla sekcji dashboard:
           sed -i '/dashboard:/!b;n;s/tag: .*/tag: "${{github.sha}}"/' helm-infostrateg/values.yaml
+
+          # Aktualizujemy tag dla sekcji spark:
+          sed -i '/spark:/!b;n;s/tag: .*/tag: "${{github.sha}}"/' helm-infostrateg/values.yaml
           
           git config user.name "GitHub Actions Robot"
           git config user.email "actions@github.com"
           git add helm-infostrateg/values.yaml
           git commit -m "CI: Automatyczna aktualizacja API, Workera i Dashboardu do wersji ${{github.sha}}"
           git push
+      # 5. Budowa obrazu SPARK (z folderu ./spark-streaming)
+      - name: Build & Push Spark
+        uses: docker/build-push-action@v5
+        with:
+          context: ./spark-streaming
+          push: true
+          tags: ghcr.io/wojtekm990/spark-streaming:${{ github.sha }}
+          platforms: linux/amd64,linux/arm64
+          cache-from: type=registry,ref=ghcr.io/wojtekm990/spark-streaming:buildcache
+          cache-to: type=registry,ref=ghcr.io/wojtekm990/spark-streaming:buildcache,mode=max

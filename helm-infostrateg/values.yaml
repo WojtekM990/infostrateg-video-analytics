@@ -17,3 +17,5 @@ dashboard:
 database:
   MYSQL_DB_PORT: 3306
 
+spark:
+  tag: "latest"
