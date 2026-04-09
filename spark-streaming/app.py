@@ -46,7 +46,7 @@ def write_to_mysql(df, epoch_id):
         url=db_url,
         table="detections",
         mode="append",
-        properties={"user": "root", "password": "infostrateg_root"}
+        properties={"user": "root", "password": "infostrateg_root", "driver": "com.mysql.cj.jdbc.Driver"}
     )
 
 # Zapisujemy strumien "w locie" zrzucajac pakiety co 5 sekund
