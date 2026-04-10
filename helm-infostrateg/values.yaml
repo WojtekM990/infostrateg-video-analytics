@@ -1,16 +1,16 @@
 # helm-infostrateg/values.yaml
 
 worker:
-  tag: "5873db2d84734c7715724aea5ddc446f09c0392d"
+  tag: "c1d6119afcbf4a376e3352cd5461810edba9faf0"
   image: ghcr.io/wojtekm990/ml-worker
   replicas: 1
 
 api:
-  tag: "5873db2d84734c7715724aea5ddc446f09c0392d"
+  tag: "c1d6119afcbf4a376e3352cd5461810edba9faf0"
   image: ghcr.io/wojtekm990/video-api
 
 dashboard:
-  tag: "5873db2d84734c7715724aea5ddc446f09c0392d"
+  tag: "c1d6119afcbf4a376e3352cd5461810edba9faf0"
   image: ghcr.io/wojtekm990/ml-dashboard
   replicas: 1
 
@@ -18,4 +18,4 @@ database:
   MYSQL_DB_PORT: 3306
 
 spark:
-  tag: "5873db2d84734c7715724aea5ddc446f09c0392d"
+  tag: "c1d6119afcbf4a376e3352cd5461810edba9faf0"
