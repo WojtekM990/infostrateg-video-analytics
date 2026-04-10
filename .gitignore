@@ -10,3 +10,6 @@ video-files/
 
 # Ignoruj pliki tymczasowe
 ~$*.docx
+
+# Notatki lokalne
+notes/
