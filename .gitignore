@@ -17,6 +17,7 @@ notes/
 # Terraform
 terraform/terraform.tfvars
 terraform/description.txt
+terraform/description_v2.txt
 terraform/.terraform/
 terraform/.terraform.lock.hcl
 terraform/terraform.tfstate
