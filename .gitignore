@@ -13,3 +13,11 @@ video-files/
 
 # Notatki lokalne
 notes/
+
+# Terraform
+terraform/terraform.tfvars
+terraform/description.txt
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
