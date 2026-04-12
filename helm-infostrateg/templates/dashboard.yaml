@@ -25,9 +25,9 @@ spec:
         app: dashboard
         
     spec:
-      
+
       containers:
-        
+
       - name: dashboard-container
         
         image: {{ .Values.dashboard.image }}:{{ .Values.dashboard.tag }}
@@ -45,7 +45,7 @@ spec:
           value: "{{ .Values.database.port }}"
           
         ports:
-          
+
         - containerPort: 8501
 
 ---

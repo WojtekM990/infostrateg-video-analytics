@@ -14,8 +14,10 @@ import shutil
 import statistics
 # USUNIETO: import mysql.connector (powodowal blad ModuleNotFoundError)
 import hashlib
+from google.cloud import storage as gcs
 
 API_URL = "http://video-api-service/simulate_detection"
+GCS_BUCKET = os.getenv("GCS_BUCKET", "infostrateg-video-output-video-rec-runners")
 CAMERAS = ["KAM-01"]
 FRAME_INTERVAL = 5  # <-- Zmieniajac te cyfre, zmieniasz czestotliwosc analizy w calym skrypcie!
 
@@ -233,11 +235,22 @@ def process_video_stream(video_path, output_mp4_name, original_video_name):
     
     # --- NOWY KOD: KONWERSJA DLA MACA / STREAMLITA ---
     print("Rozpoczynam konwersje wideo na format Apple/Web (H.264)...")
-    koncowy_mp4 = f"/app/video-output/wynik_{output_mp4_name}.mp4"
+    koncowy_mp4 = f"/tmp/wynik_{output_mp4_name}.mp4"
     os.system(f"ffmpeg -y -i {roboczy_avi} -vcodec libx264 {koncowy_mp4}")
     os.remove(roboczy_avi)
-    # -------------------------------------------------
-    
+
+    print(f"Uploaduje wideo do GCS: {GCS_BUCKET}...")
+    try:
+        client = gcs.Client()
+        bucket = client.bucket(GCS_BUCKET)
+        blob = bucket.blob(f"wynik_{output_mp4_name}.mp4")
+        blob.upload_from_filename(koncowy_mp4)
+        print(f"Upload zakonczony: wynik_{output_mp4_name}.mp4")
+    except Exception as e:
+        print(f"Blad uploadu do GCS: {e}")
+    finally:
+        os.remove(koncowy_mp4)
+
     print(f"Przetwarzanie wideo {output_mp4_name} calkowicie zakonczone.")
 
 def watch_folder_and_process():

@@ -26,7 +26,8 @@ RUN pip install --no-cache-dir \
     opencv-python==4.8.0.76 \
     ultralytics \
     lapx \
-    confluent-kafka
+    confluent-kafka \
+    google-cloud-storage
 # USUNIETO: pymysql i cryptography (Worker juz nie laczy sie z baza, robi to API)
 
 # 4. KROK KLUCZOWY: Pobieramy model YOLOv8n (Rowniez zapamietane w cache)

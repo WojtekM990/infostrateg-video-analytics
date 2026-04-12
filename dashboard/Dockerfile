@@ -7,10 +7,9 @@ WORKDIR /app
 # Instalujemy zaleznosci dla Dashboardu
 RUN pip install --no-cache-dir \
     streamlit \
-    pymysql \
+    requests \
     pandas \
-    sqlalchemy \
-    cryptography
+    google-cloud-storage
 
 # Kopiujemy kod Dashboardu
 COPY . .

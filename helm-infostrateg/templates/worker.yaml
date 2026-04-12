@@ -26,23 +26,14 @@ spec:
         
     spec:
       
-      # --- NOWY KOD: TWORZENIE MOSTU DLA PLIKOW (VOLUME) ---
       volumes:
-      - name: video-output
-        hostPath:
-          path: /Users/wojciechmatysek/Desktop/Files/Projects/ml-local-env/video-output/
-          type: DirectoryOrCreate
-          
       - name: input-storage
-        hostPath:
-          path: /Users/wojciechmatysek/Desktop/Files/Projects/ml-local-env/video-input/
-          type: DirectoryOrCreate
-          
+        persistentVolumeClaim:
+          claimName: video-input-pvc
+
       - name: archive-storage
-        hostPath:
-          path: /Users/wojciechmatysek/Desktop/Files/Projects/ml-local-env/video-archive/
-          type: DirectoryOrCreate
-      # -----------------------------------------------------
+        persistentVolumeClaim:
+          claimName: video-archive-pvc
 
       containers:
         
@@ -52,12 +43,9 @@ spec:
                 
         # --- NOWY KOD: PODPIECIE MOSTU DO KONTENERA ---
         volumeMounts:
-        - name: video-output
-          mountPath: /app/video-output
-          
         - name: input-storage
           mountPath: /app/video-input
-          
+
         - name: archive-storage
           mountPath: /app/video-archive
         # ----------------------------------------------

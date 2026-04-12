@@ -4,9 +4,10 @@ import streamlit as st
 import requests
 import os
 import pandas as pd
-import glob
+from google.cloud import storage as gcs
 
 API_URL = os.getenv("API_URL", "http://video-api-service")
+GCS_BUCKET = os.getenv("GCS_BUCKET", "infostrateg-video-output-video-rec-runners")
 
 def get_data():
     try:
@@ -47,19 +48,17 @@ else:
 st.markdown("---")
 st.header("Ostatnio Przetworzone Wideo")
 
-video_dir = "/app/video-output"
+try:
+    client = gcs.Client()
+    bucket = client.bucket(GCS_BUCKET)
+    blobs = sorted(bucket.list_blobs(), key=lambda b: b.updated, reverse=True)
 
-if os.path.exists(video_dir):
-    mp4_files = glob.glob(os.path.join(video_dir, "*.mp4"))
-
-    if mp4_files:
-        latest_video = max(mp4_files, key=os.path.getctime)
-        st.write(f"Odtwarzanie pliku: **{os.path.basename(latest_video)}**")
-
-        with open(latest_video, 'rb') as video_file:
-            video_bytes = video_file.read()
-            st.video(video_bytes)
+    if blobs:
+        latest = blobs[0]
+        st.write(f"Odtwarzanie pliku: **{latest.name}**")
+        video_bytes = latest.download_as_bytes()
+        st.video(video_bytes)
     else:
-        st.info("Oczekuje na dane... Brak przekonwertowanych plikow wideo w folderze.")
-else:
-    st.warning(f"Brak dostepu do folderu {video_dir}. Upewnij sie, ze wolumen w Kubernetesie jest poprawnie podpiety.")
+        st.info("Oczekuje na dane... Brak plikow wideo w GCS.")
+except Exception as e:
+    st.warning(f"Blad polaczenia z GCS: {e}")
