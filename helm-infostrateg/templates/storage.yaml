@@ -1,0 +1,23 @@
+# Dysk na wideo wejściowe (wrzucasz tu pliki MP4 do analizy)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: video-input-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+# Dysk na archiwum (Worker przenosi tu oryginały po przetworzeniu)
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: video-archive-pvc
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
