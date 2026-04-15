@@ -42,6 +42,13 @@ spec:
         # Nasza globalna zmienna bazy danych
         - name: MYSQL_DB_PORT
           value: "3306"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "300m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
 ---
 apiVersion: v1
 kind: Service

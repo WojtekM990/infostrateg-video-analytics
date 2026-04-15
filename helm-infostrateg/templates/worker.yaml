@@ -7,9 +7,9 @@ metadata:
   name: ml-worker-deployment
   
 spec:
-  
   replicas: 1
-  
+  strategy:
+    type: Recreate
   selector:
     
     matchLabels:
@@ -53,13 +53,8 @@ spec:
         resources:
           
           requests:
-            
             memory: "1Gi"
-            
-            cpu: "500m"
-          
+            cpu: "300m"
           limits:
-            
             memory: "2Gi"
-            
-            cpu: "1000m"
+            cpu: "800m"

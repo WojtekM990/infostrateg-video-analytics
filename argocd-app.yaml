@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: infostrateg
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/WojtekM990/infostrateg-video-analytics.git
+    targetRevision: main
+    path: helm-infostrateg
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true      # usuwa zasoby których nie ma w repo
+      selfHeal: true   # cofa ręczne zmiany na klastrze
+    syncOptions:
+      - CreateNamespace=true
