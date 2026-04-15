@@ -74,8 +74,7 @@ def process_video_stream(video_path, output_mp4_name, original_video_name):
     if fps <= 0 or fps > 120: fps = 30 # Poprawione zabezpieczenie przed blednym odczytem FPS
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
     
-    # Zmieniona sciezka na video-output
-    roboczy_avi = f"/app/video-output/roboczy_{output_mp4_name}.avi"
+    roboczy_avi = f"/tmp/roboczy_{output_mp4_name}.avi"
     out = cv2.VideoWriter(roboczy_avi, fourcc, fps, (width, height))
     # --------------------------------------------
         
